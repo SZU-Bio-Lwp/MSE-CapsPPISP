@@ -4,4 +4,4 @@
  
 2. The predicted secondary structure and predicted solvent accessibility features are derived from https://services.healthtech.dtu.dk/service.php?NetSurfP-2.0.
 
-3. The physicochemical characteristics are derived from Zhang *et al*.
+3. The physicochemical characteristics are derived from Zhang *et al* [28].
