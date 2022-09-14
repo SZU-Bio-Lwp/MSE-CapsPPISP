@@ -1,7 +1,7 @@
 import tensorflow._api.v2.compat.v1 as tf
 import tf_slim as slim
 
-from attention.SEAttention import squeeze_excite_block as se
+from Squeeze-and-Excitation import squeeze_excite_block as se
 from config import cfg
 from utils import get_batch_data
 from utils import softmax
