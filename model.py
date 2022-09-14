@@ -6,12 +6,12 @@ from config import cfg
 from utils import get_batch_data
 from utils import softmax
 from utils import reduce_sum
-from capsule_Layer import CapsLayer
+from capsLayer import CapsLayer
 
 epsilon = 1e-9
 
 class CapsNet(object):
-    def __init__(self, is_training=True, height=9, width=36, channels=1, num_label=2):
+    def __init__(self, is_training=True, height=9, width=39, channels=1, num_label=2):
         """
         Args:
             height: Integer, the height of inputs.
@@ -45,32 +45,34 @@ class CapsNet(object):
                 self.build_arch()
 
         tf.logging.info('Seting up the main structure')
-
+        
+    # Model architecture
     def build_arch(self):
         with tf.variable_scope('Conv1_layer'):
-            Multi_conv0 = slim.layers.conv2d(self.X, num_outputs=128,
+            multi_conv01 = slim.layers.conv2d(self.X, num_outputs=128,
                                              kernel_size=3, stride=1,
                                              padding='SAME')
-            o1 = se(Multi_conv0)
-            Multi_conv1 = slim.layers.conv2d(self.X, num_outputs=128,
+            o1 = se(multi_conv01)
+            
+            multi_conv02 = slim.layers.conv2d(self.X, num_outputs=128,
                                              kernel_size=5, stride=1,
                                              padding='SAME')
-            o2 = se(Multi_conv1)
-            Multi_conv2 = slim.layers.conv2d(self.X, num_outputs=128,
+            o2 = se(multi_conv02)
+            
+            multi_conv03 = slim.layers.conv2d(self.X, num_outputs=128,
                                              kernel_size=7, stride=1,
                                              padding='SAME')
-            o3 = se(Multi_conv2)
+            o3 = se(multi_conv03)
 
             output = tf.concat([o1, o2, o3], 3)
-
             conv1 = slim.layers.conv2d(output, num_outputs=256,
                                        kernel_size=1, stride=1,
                                        padding='SAME')
             conv1 = se(conv1)
 
-        # Primary Capsules layer
+        # PrimaryCaps layer
         with tf.variable_scope('PrimaryCaps_layer'):
-            primaryCaps = CapsLayer(num_outputs=32, vec_len=8, with_routing=False, layer_type='CONV')
+            primaryCaps = CapsLayer(num_outputs=32, vec_len=4, with_routing=False, layer_type='CONV')
             caps1 = primaryCaps(conv1, kernel_size=9, stride=1)
 
         # DigitCaps layer
@@ -90,7 +92,6 @@ class CapsNet(object):
             self.argmax_idx = tf.reshape(self.argmax_idx, shape=(cfg.batch_size,))
 
             if not cfg.mask_with_y:
-
                 masked_v = []
                 for batch_size in range(cfg.batch_size):
                     v = self.caps2[batch_size][self.argmax_idx[batch_size], :]
